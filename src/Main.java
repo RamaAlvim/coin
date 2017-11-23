@@ -1,96 +1,136 @@
+import java.util.*;
 
 
 public class Main {
 
 
     public static void main(String[] args) {
-        int[] tiposmoedas= {10000,5000,2000,1000,500,200, 100, 50, 25, 10, 5, 1};
-        // {1,5,10,25,50,100,200,500,1000,2000,5000,10000}
-        int[] resposta=new int[11];
-        int tot=Integer.MAX_VALUE;
 
-        for(int i =0;i<11;i++)
+        int[] tipomoedas = new int[]{10000, 5000, 2000, 1000, 500, 200, 100, 50, 25, 10, 5, 1};
+        int[] resposta=new int[tipomoedas.length];
+        int troco=31;
+       // resposta= Backtrack.guloso(tipomoedas,resposta,0,0,19,0);
+        resposta= Backtrack.backtrackinicio(tipomoedas,resposta,troco);
+
+
+
+        for(int i=0;i<resposta.length;i++)
         {
-            resposta[i]=0;
+            System.out.println(resposta[i]);
         }
-        //bruteforce.bruteforcemin(resposta,tiposmoedas,valor,tot);
-        //é necessario multiplicar o valor por
-        System.out.println(bruteforce.encontraoI(tiposmoedas,200));
-    }
 
+    }
 }
 
-class bruteforce {
+
+class Backtrack
+{
+    //troco nao muda
+    //valor eh a soma das moedas que eu adicionei e nao pode passar troco.
+   //testar instancia sempre que acrescentar alguma moeda
 
 
-    public static int[] bruteforcemin(int[]resposta, int[] tiposmoedas,int valor,int tot)
-    {   int[]temp=resposta;
-
-        int soma=valor;
-        int resto=0;
-        for( int inicio=0;inicio<tiposmoedas.length-1;inicio++)
+   public static int[] guloso(int[] tipomoedas, int[] resposta, int qualmoeda, int qtd,int troco,int valor)
+    {//int[] instancia=new int[tipomoedas.length];
+        if(valor==troco)
         {
-            int quantasvezescabe = 0;
-            resto=valor;
+            return resposta;
+        }
+        if(  (troco-valor) >tipomoedas[qualmoeda])
+        {
+            resposta[qualmoeda]=resposta[qualmoeda]+1;
+            resposta=guloso(tipomoedas,resposta,qualmoeda,qtd+1,troco,valor+tipomoedas[qualmoeda]);
+        }
+        if(qualmoeda<tipomoedas.length-1 && troco-valor<=tipomoedas[qualmoeda]  )
+        {
+            resposta=guloso(tipomoedas,resposta,qualmoeda+1,qtd,troco,valor);
+        }
+        //testar
+     /*   if(qualmoeda<=tipomoedas.length-1 && troco-valor ==tipomoedas[qualmoeda])
+        {//igual a ultima pos
+            resposta[qualmoeda]=resposta[qualmoeda]+1;
+            resposta=guloso(tipomoedas,resposta,qualmoeda,qtd+1,troco,valor+tipomoedas[qualmoeda]);
+        }*/
+        if(qualmoeda==tipomoedas.length-1 && troco-valor ==tipomoedas[qualmoeda])
+        {//igual a ultima pos
+            resposta[qualmoeda]=resposta[qualmoeda]+1;
+            resposta=guloso(tipomoedas,resposta,qualmoeda,qtd+1,troco,valor+tipomoedas[qualmoeda]);
+        }
 
-            for (int i = inicio; i < tiposmoedas.length; i++) {
 
-                if (tiposmoedas[i] <=resto) {
-                    quantasvezescabe = soma / tiposmoedas[i];
-                    resto = soma % tiposmoedas[i];
-                    resposta[i] = quantasvezescabe;
-                }
-            }
+        return resposta;
+    }
+    public static int[] backtrackinicio(int[] tipomoedas, int[] resposta,int troco)
+    {int[][] instancias=new int[tipomoedas.length][tipomoedas.length];
+        int[] instancia=new int[tipomoedas.length];
+        for(int i=0;i<tipomoedas.length;i++)
+        {
+            resposta=new int[tipomoedas.length];
+            instancias[i]=backtrack(tipomoedas,resposta,i,troco,0,i);
+        }
+        instancia=instancias[0];
+        for(int i=1;i<tipomoedas.length;i++)
+        {
+         instancia =retornamenor(instancia,instancias[i]);
+        }
+        return instancia;
+    }
 
-            if(contamoedas(resposta)<contamoedas(temp))
-            {
+    private static int[] backtrack(int[] tipomoedas, int[] resposta, int qualmoeda,int troco,int valor,int ini)
+    {
+        if(valor==troco)
+        {//ok
+            return resposta;
 
-            }
+        }
+        if(qualmoeda<tipomoedas.length-1&& valor<troco) {
+            //em valor acrescenta-se uma moeda do tipo tipomoedas[qualmoeda] na resposta
+            //e se deixa aberta a possibilidade de colocar outra moeda igual
+            resposta[qualmoeda]=resposta[qualmoeda]+1;
+            resposta=backtrack(tipomoedas,resposta,qualmoeda,troco,valor + tipomoedas[qualmoeda],ini);
+
+        }
+        if(qualmoeda<tipomoedas.length-1 && valor>troco && qualmoeda>=ini)
+        {//em valor, retira-se uma moeda do tipo tipomoedas[qualmoeda] da resposta
+            //e exclui-se a possibilidade de caber outra moeda do mesmo tipo.
+
+
+            resposta[qualmoeda]=resposta[qualmoeda]-1;
+            resposta=backtrack(tipomoedas,resposta,qualmoeda+1,troco,valor-tipomoedas[qualmoeda],ini);
+        }
+
+        if(qualmoeda==tipomoedas.length-1 && valor<troco)
+        {//ultima pos
+            resposta[qualmoeda]=resposta[qualmoeda]+1;
+            resposta=backtrack(tipomoedas,resposta,qualmoeda,troco,valor+tipomoedas[qualmoeda],ini);
         }
 
         return resposta;
 
+
     }
 
-    public static int contamoedas(int[] resposta)
+
+public static int[] retornamenor(int[] inst1,int[] inst2)
+{
+    int qtd1=0,qtd2=0;
+
+    for(int i=0;i<inst1.length;i++)
     {
-        int quantas=0;
-
-        for(int i=0;i<resposta.length;i++)
-        {
-            if(resposta[i]>1)
-            {
-                quantas=quantas+resposta[i];
-
-            }
-        }
-
-        return quantas;
+        qtd1=qtd1+inst1[i];
+        qtd2=qtd2+inst2[i];
     }
-
-    public void printresposta(int[] resposta)
+    if(qtd1<qtd2)
     {
-        for(int i=0;i<resposta.length;i++)
-        {
-
-            System.out.print(resposta[i]+" ");
-        }
-
+        return inst1;
     }
-
-
-    public static int encontraoI(int[] tiposmoedas,int valor )
-    {
-        int izao=0;
-        for(int i=0;i<tiposmoedas.length;i++)
+    else
         {
-            if(tiposmoedas[i]<=valor)
-            {
-                izao=i;
-                break;
-            }
-
-        }
-        return izao;
+        return inst2;
     }
+}
+
+
+
+
 }
