@@ -11,7 +11,7 @@ public class Main {
         int[] tipomoedas = new int[]{10000, 5000, 2000, 1000, 500, 200, 100, 50, 25, 10, 5, 1};
         int[] resposta = new int[tipomoedas.length];
         int[] valores = new int[tipomoedas.length];
-        int troco = 10;
+        int troco = 100;
 
 
         valores=LerValores(tipomoedas,valores);
