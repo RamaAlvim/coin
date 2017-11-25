@@ -11,7 +11,7 @@ public class Main {
         int[] tipomoedas = new int[]{10000, 5000, 2000, 1000, 500, 200, 100, 50, 25, 10, 5, 1};
         int[] resposta = new int[tipomoedas.length];
         int[] valores = new int[tipomoedas.length];
-        int troco = 100;
+        int troco = 10;
 
 
         valores=LerValores(tipomoedas,valores);
@@ -379,7 +379,7 @@ class BranchBound
 
         if(valor==troco && valores[qualmoeda]>=0)
         {//ok
-            if(lb<troco)
+
             //achou troco
             return resposta;
 
@@ -398,13 +398,13 @@ class BranchBound
             //testa se existe a cedula ou moeda na quantia
             //se tiver tudo ok, testa o upper bound
 
-            if(lb<=valor) {
+            if(troco>lb) {
 
                 valores[qualmoeda] = valores[qualmoeda] - 1;
                 resposta[qualmoeda] = resposta[qualmoeda] + 1;
                 resposta = BBvariedade(tipomoedas, resposta, valores, qualmoeda, troco, valor + tipomoedas[qualmoeda], ini);
-
             }
+
         }
         if(qualmoeda<tipomoedas.length-1&& valor<troco && valores[qualmoeda]==0) {
             //sem moeda daquele valor
